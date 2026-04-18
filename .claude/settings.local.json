@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rustup target *)",
+      "Bash(cargo init *)",
+      "Bash(cargo check *)"
+    ]
+  }
+}
