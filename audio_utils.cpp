@@ -72,7 +72,15 @@ void audioInit() {
 void playFile(const char *filename) {
   stopBeep();
   mixer.gain(0, 1.0);
-  player.play(filename);
+  bool ok = player.play(filename);
+  Serial.print("playFile(");
+  Serial.print(filename);
+  Serial.print(") -> ");
+  Serial.println(ok ? "OK" : "FAILED");
+  // Give AudioPlaySdWav a moment to confirm it started
+  delay(10);
+  Serial.print("  isPlaying after 10ms: ");
+  Serial.println(player.isPlaying() ? "yes" : "no");
 }
 
 void stopPlayback() {

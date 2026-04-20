@@ -5,7 +5,7 @@
 // Pin connected to the telephone hook switch.
 // Wiring: one side to this pin, other side to GND.
 // Receiver lifted = switch open = pin reads HIGH (INPUT_PULLUP).
-#define HOOK_PIN         2
+#define HOOK_PIN         24
 #define MAX_CONFESSIONS 20
 
 // ── Prompt audio files — put these on the SD card ───────────────────────────
@@ -18,7 +18,6 @@
 enum State {
   IDLE,
   PLAYING_WELCOME,
-  PLAYING_FIRST,
   PLAYING_CONFESSION,
   PLAYING_PROMPT,
   PLAYING_BEEP,
@@ -75,18 +74,14 @@ void loop() {
 
     case IDLE:
       if (justPickedUp()) {
-        if (countConfessions() > 0) {
-          playFile("WELCOME.WAV");
-          transitionTo(PLAYING_WELCOME);
-        } else {
-          playFile("FIRST.WAV");
-          transitionTo(PLAYING_FIRST);
-        }
+        Serial.println("Playing Welcome");
+        playFile("WELCOME.WAV");
+        transitionTo(PLAYING_WELCOME);
       }
       break;
 
     case PLAYING_WELCOME:
-      if (!isPlaying()) {
+      if (millis() - stateEnteredAt >= 100 && !isPlaying()) {
         char confPath[16];
         if (getRandomConfession(confPath, sizeof(confPath))) {
           playFile(confPath);
@@ -99,22 +94,17 @@ void loop() {
       }
       break;
 
-    case PLAYING_FIRST:
-      if (!isPlaying()) {
-        playFile("PROMPT.WAV");
-        transitionTo(PLAYING_PROMPT);
-      }
-      break;
-
     case PLAYING_CONFESSION:
-      if (!isPlaying()) {
+      if (millis() - stateEnteredAt >= 100 && !isPlaying()) {
+        Serial.println("Playing Confession");
         playFile("PROMPT.WAV");
         transitionTo(PLAYING_PROMPT);
       }
       break;
 
     case PLAYING_PROMPT:
-      if (!isPlaying()) {
+      if (millis() - stateEnteredAt >= 100 && !isPlaying()) {
+        Serial.println("Playing Prompt");
         startBeep();
         transitionTo(PLAYING_BEEP);
       }
